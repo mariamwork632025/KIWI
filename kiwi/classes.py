@@ -54,12 +54,24 @@ class Metabolome(object):
                 raise NameError("pValue attribute is not assigned to Metabolite in the Metabolome")
             mlOld = self.metaboliteList
             self.metaboliteList = [met for met in mlOld if met.pValue < pcutoff]
+            print(self.metaboliteList[0])
         else:
             argcheck = [hasattr(met,'pNonDirectional') for met in self.metaboliteList]
             if not all(argcheck):
                 raise NameError("pNonDirectional attribute is not assigned to Metabolite in the Metabolome")
             mlOld = self.metaboliteList
+            #editttttttttttttttttttt
+
+            # for i,item in enumerate(mlOld):
+            #     print(mlOld[i],item.pNonDirectional)
+            
+            print("pcutoff:",pcutoff)
+
+
+
+            # print(mlOld[1])
             self.metaboliteList = [met for met in mlOld if met.pNonDirectional < pcutoff]
+            # print(self.metaboliteList)
 
     def removeMetabolitesNotInMetNet(self,MN):
         """It removes all Metabolite objects that are not nodes in the input
@@ -68,7 +80,9 @@ class Metabolome(object):
         :param MN: a graph that contains Metabolite objects as nodes.
         :type MN: a networkx Graph object."""
         mlOld = self.metaboliteList
-        self.metaboliteList = [met for met in mlOld if met.name in MN.node]
+        ###########################################
+        #_node not node
+        self.metaboliteList = [met for met in mlOld if met.name in MN._node]
 
     def removeHighDegreeMetabolites(self,MN,degreecutoff):
         """It removes all Metabolite objects if the degree as nodes in the input
@@ -105,13 +119,15 @@ class Metabolite(object):
         :type header: a string array
         :type adj: string
         """
+        #EDIT ERROR IN SELECTING VALUE SO ALWAYS GIVES NAN
         import numpy as np
+        # print(float(stats[np.where(header=='p '+adj+'(non-dir.)')[0][0]]))
         try:
-            self.pNonDirectional = float(stats[np.where(header=='p '+adj+'(non-dir.)')[0]])
+            self.pNonDirectional = float(stats[np.where(header=='p '+adj+'(non-dir.)')[0][0]])
         except:
             self.pNonDirectional = np.nan
         try:
-            self.pMixDirUp = float(stats[np.where(header=='p '+adj+'(mix.dir.up)')[0]])
+            self.pMixDirUp = float(stats[np.where(header=='p '+adj+'(mix.dir.up)')[0][0]])
         except:
             self.pMixDirUp = np.nan
         try:

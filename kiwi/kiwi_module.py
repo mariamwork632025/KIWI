@@ -174,6 +174,8 @@ def plot(gsn, gss, gsc='', gls='', pc=0.01, adj=True, gsz=10**6,
 
     # Make metabolic network MN:
     MN = nx.read_edgelist(MNfile,nodetype=str,delimiter='\t')
+    ##################################
+    print("MN._node:", MN._node)
 
     # Initialize metabolome M:
     M = kiwiC.Metabolome()
@@ -208,9 +210,18 @@ def plot(gsn, gss, gsc='', gls='', pc=0.01, adj=True, gsz=10**6,
         M.addMetabolite(m)
     if not any([m.pNonDirectional!=np.nan for m in M.metaboliteList]): raise NameError("Invalid data type for gene-set p-value statistic: all values are NaN")
 
+    # edittttttttttts
+    # for met in M.metaboliteList:
+    #     print(met.name, met.pNonDirectional)
+
     ## Retrieve minimum p-value in the GSS statistics dataset
     p_all = np.array(list(itertools.chain.from_iterable((met.pNonDirectional,met.pMixDirUp,met.pMixDirDn,met.pDistDirUp,met.pDistDirDn,met.pValue) for met in M.metaboliteList)))
     p_all[np.isnan(p_all)] = 1
+
+
+    # 555555555555555555555555555555555555555555
+    # print(p_all)
+
     ### The minimum p_value of the dataset represents the extreme scenario. This is used for two purposes in computing the directionality score.
     ### First, it is used to add a small quantity before taking the log values (and only if there is a p-value
     ### equal to 0 in the dataset). Second, it is used to normalize the directionality score, so that +1/-1
@@ -225,16 +236,31 @@ def plot(gsn, gss, gsc='', gls='', pc=0.01, adj=True, gsz=10**6,
     else:
         p_min_tostabilize = 0
         p_min_tonormalize = p_all.min()
+    print("Minimum p-value in the dataset is: ", p_all[0])
+    # مبدلش ال بي ال بعد تعديل النان بقيم ال pNonDirectional
 
     # Remove non-significant metabolites and metabolites not in MN and metabolites w high degree:
+#    EDITTTTTTTTTTTTTS
+    print(pcutoff,nonPiano)
+    # for i,m in enumerate(M.metaboliteList):
+    #     if m.pNonDirectional is np.nan:
+    #         m.pNonDirectional = p_all[i]
+
+
     M.removeNotSignificantMetabolites(pcutoff,nonPiano)
+    print(len(M.metaboliteList))
     if len(M.metaboliteList)==0:
         raise NameError('No metabolites passed the pCutoff')
     M.removeMetabolitesNotInMetNet(MN)
     if len(M.metaboliteList)==0:
         raise NameError('No more metabolites from the gene-set statistics file are present in the metabolite-metabolite network')
-    if dcutoff < max(nx.degree(MN).values()):
+    ################################################################
+    #There is no .values() function in networkx 2.x
+    #TO get it convert to dict and then get values
+    if dcutoff < max(dict(nx.degree(MN)).values()):
         M.removeHighDegreeMetabolites(MN,dcutoff)
+
+
     if len(M.metaboliteList)==0:
         raise NameError('No metabolites passed the dCutoff')
 
